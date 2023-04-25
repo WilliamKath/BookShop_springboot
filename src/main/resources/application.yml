@@ -1,0 +1,40 @@
+# mysql
+spring:
+  datasource:
+    #MySQL配置
+    driverClassName:  com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/bookshop?useSSL=false&useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
+    username: root
+    password: root
+  servlet:
+    multipart:
+      max-file-size: 2MB # 设置单个文件的大小为2M
+      max-request-size: 30MB # 设置总上传的数据大小为30M
+  encoding:
+    charset: utf-8
+    force: true
+    enabled: true
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.example.demo.model
+  configuration:
+    map-underscore-to-camel-case: true
+
+alipay:
+  appId: 2021000122677419
+  publicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlt7XlvV4MYthuGAM32saahR8HfDgKP4gP2WH5lxurDFETH+ULThtspSHo+WRVtfiqu8/udO+F75ysg33f7x6erGFj/T4XgB0I1U0l569PpMaiVfIv/Fvqw73x/m3ubkpAcXHMSPOgcckyVVQmgRAvRnQ4doPrrthkgn4wWqym5WgqV/tADC1wXqEayexYWzt6tUvZLYdKCm+ygb5LnEWhCqjuzQ7cCHfJuIiDKdp0JTrATNn8SINt1S8050IJbW9/LExwPqdjTriyc/+fVsAENMIJqAOO9Ongy6PnoYRpTXieVSvKH/gQq5I3VZBXNnGFrGj+LHYLFIO2x0AYJKVmwIDAQAB
+  privateKey: MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCosfJHJrTcn+PpgnPFXv9kfa4yJQJNbNeh4kwvTGkr32cBmhf8n1z1ViXFgAL80is/dfOtJYgDA4sB5eKfG5jpFOEeCYQHAsLeHooPRwsbCFRt4BsWPM3UceBB2X5HN0BkvZVbORII5e5Gev3vBvjnyDX6VYEsW5MTVyJe8xn5VyD+ML5fZUsgGpAO1WdbC97p5uI99kH/JpB62hVGVkx21ZcJ1c7Gdu+YZzuHnFj8GlBalfEyTYzoFC/tCTeRZVYuoPMZ7bW+cSVXnR0r18OseUf7NStm6HBRZpyN7KT8rwDfkCEa1eYz5+UPd7bTFgmW/6O1bMTQYlAw6mm1GuAvAgMBAAECggEABuqc01v76FvJ3WYS1xHJCNa6UKYBzSjcQm/jzcClQz46m+80cpAaIJjynYFdHf6D9WshnYS/adg4V9CUFQ/tmgjYHgIn3p23XaIE6RFxnB8gTwz0L1o42i/9ENYY/lR+mGLJf978JU9AELW0OZugkug7hlMBI89xXUaiSyBOfVGLDRs1JI9IieDAOsm0xgIxhaLyhObleSXP9nHHbhc0iPGc4RZMyVszlFT9UblhHkUYA1rADYucoTqSOQyvzzAZkGfyYoZo57qGHvVAmPQaD4zJknyZykoMvB8LlUV7fdzZOHttieNg+flnpaZ4OKkSsqPDmGxrm720eNsNrQ4U0QKBgQDn4GX2OrIclBBJTcxOwye5imdtCn2//obuUR0oF7jPXeK6xhqnVATGIxQsYnPQdZ+Jg8JR/6yUI6oQERFKLxjgBdM3kWLJbqyJOSDbuN8vl+u7Psuu64PagnBeiO3anEKzywr1Irbh9DYF6j1FuS2jfHd4aUgz3lB7CLq7Q8bktwKBgQC6PtPPHtj+/Xu8pr8D2dLZ1lrDPpQBkcsRUqKMNL9YsFMCHePxda+2++RKDS2ZCoIuW9nfALzGYfpTV9Uqd1zfSw2uVzXl6kLELu6gUmqGNBpaNwM7OuhxBD2hXBGtYXBLbdMy5OI+to9SzV/95zG5r5dLk8l7TZkBZ9/KoiGYSQKBgQDMYODeQGwffm5Afl83iRIpmxGAbf/ay5jY1AwT+5y8wm8G23hAxnCSx/aPDJQySIq/JbCQn//YbvsFwFVyAsM1Kk06rF3bWD6hkQYiRPgLtidkWnwjiJkmb1RmLuEfkB3G5Y+Z8+gojx1S51zsaMUOVbXkH0Ax36EmYNJeHuZfTwKBgQCcv0XaerbcnJAobRo0bn4z0mFfE2rTi1WiBa9CWx5z0Sp7jJaMYKT7VzKCVGb898gqpilOszstp8ZboH+Klxz13R/ti/6Tuz5oCKvTCKoYuv820DgLAIAiphQMmwVRq8Er6ommutXjPBiR8sGIWq0R/0NRW1dmTB+q/DZwP1YQ6QKBgBMYvWeY0qhUjBsbsW1O9GJgjnTwrGdvfl7NNCt+Tl85QJMj8eT0vf4DbOsAED0sehp45EDMI3sE84bXKImYTOi1K+88cWctMnv+llB8a34l53T5ZZ96Txn/KOwV6S+w6evKX1b86zfsgyhtiEfBpT+to+LKpA6LzBqD5wOAEKn9
+  notifyUrl: http://localhost:8080/#/paysuccess
+  returnUrl: http://localhost:8080/#/paysuccess
+  charset: utf-8
+  signType: RSA2
+  gatewayUrl: https://openapi.alipaydev.com/gateway.do
+  logPath: "D:\\"
+
+knife4j:
+  enable: true
+
+server:
+  port: 9000
+

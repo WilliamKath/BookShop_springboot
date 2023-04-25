@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.bookshop.dao.RecordsDao">
+    <select id="getPublishRecordList" resultType="com.example.bookshop.bean.Book">
+        SELECT * FROM book WHERE book_seller=#{bookSeller};
+    </select>
+
+
+
+    <!-- 定义ResultMap -->
+    <resultMap id="favoriteMap" type="com.example.bookshop.vo.FavoritesListVo">
+        <id column="favorites_id" property="favoritesId"/>
+        <result column="user_id" property="userId"/>
+        <result column="book_id" property="bookId"/>
+        <association property="book" javaType="com.example.bookshop.vo.BookDetailVo">
+            <id column="book_id" property="bookId"></id>
+            <result column="book_name" property="bookName"/>
+            <result column="book_isbn" property="bookIsbn"/>
+            <result column="book_price" property="bookPrice"/>
+            <result column="book_outline" property="bookOutline"/>
+            <result column="book_release" property="bookRelease"/>
+            <association property="category" javaType="com.example.bookshop.bean.Category">
+                <id column="category_id" property="categoryId"/>
+                <result column="category_name" property="categoryName"/>
+            </association>
+            <association property="seller" javaType="com.example.bookshop.bean.Seller">
+                <id column="sid" property="sellerId"/>
+                <result column="user_name" property="sellerName"/>
+            </association>
+        </association>
+
+    </resultMap>
+
+    <!-- 编写SQL语句 -->
+    <select id="getFavoritesListByUserId" resultMap="favoriteMap">
+        SELECT f.favorites_id,
+               f.user_id,
+               f.book_id,
+               b.book_name,
+               b.book_isbn,
+               b.book_price,
+               b.book_outline,
+               b.book_release,
+               c.category_id,
+               c.category_name,
+               u.user_id sid,
+               u.user_name
+        FROM favorites f
+                 JOIN book b ON f.book_id = b.book_id
+                 JOIN user u ON b.book_seller = u.user_id
+                 JOIN category c ON b.book_category = c.category_id
+        WHERE f.user_id = #{userId}
+    </select>
+
+    <!-- 删除一条favorite数据 -->
+    <delete id="deleteFavoriteById">
+        DELETE FROM favorites
+        WHERE favorites_id = #{id}
+    </delete>
+
+    <!--查询该商品是否收藏-->
+    <select id="findIsFavorite" resultType="com.example.bookshop.bean.Favorites">
+        select favorites_id,
+               user_id,
+               book_id
+        FROM favorites
+        WHERE user_id=#{userId} AND book_id=#{bookId}
+    </select>
+
+    <!--新增收藏记录-->
+    <insert id="addFavorite" parameterType="com.example.bookshop.bean.Favorites">
+        INSERT INTO favorites (user_id, book_id) VALUES (#{userId}, #{bookId});
+    </insert>
+
+
+</mapper>

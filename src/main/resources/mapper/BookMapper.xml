@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.bookshop.dao.BookDao">
+    <resultMap id="bookDtl" type="com.example.bookshop.vo.BookDetailVo">
+        <id column="bid" property="bookId" javaType="Integer"></id>
+        <result column="book_name" property="bookName" javaType="String"></result>
+        <result column="book_isbn" property="bookIsbn" javaType="String"></result>
+        <result column="book_category" property="bookCategory" javaType="Integer"></result>
+        <result column="book_price" property="bookPrice" javaType="String"></result>
+        <result column="book_outline" property="bookOutline" javaType="String"></result>
+        <result column="book_release" property="bookRelease" javaType="Integer"></result>
+        <association property="category" javaType="com.example.bookshop.bean.Category">
+            <id column="cid" property="categoryId" javaType="Integer"></id>
+            <result column="category_name" property="categoryName" javaType="String"></result>
+        </association>
+        <association property="seller" javaType="com.example.bookshop.bean.Seller">
+            <id column="sid" property="sellerId" javaType="Integer"></id>
+            <result column="user_name" property="sellerName" javaType="String"></result>
+            <result column="user_email" property="sellerEmail" javaType="String"></result>
+            <result column="user_phone" property="sellerPhone" javaType="String"></result>
+        </association>
+        <collection property="bookImgList" ofType="com.example.bookshop.bean.BookImg">
+            <id column="iid" property="imgId" javaType="Integer"></id>
+            <result column="item_id" property="itemId" javaType="Integer"></result>
+            <result column="img_isbig" property="imgIsbig" javaType="Integer"></result>
+            <result column="img_url" property="imgUrl" javaType="String"></result>
+        </collection>
+    </resultMap>
+
+    <select id="getBookDtl" resultMap="bookDtl">
+        SELECT b.book_id bid,
+               b.book_name,
+               b.book_isbn,
+               b.book_category,
+               b.book_price,
+               b.book_outline,
+               b.book_release,
+               i.img_id iid,
+               i.item_id,
+               i.img_isbig,
+               i.img_url,
+               c.category_id cid,
+               c.category_name,
+               s.user_id sid,
+               s.user_name,
+               s.user_email,
+               s.user_phone
+        FROM book b
+                 JOIN category c ON b.book_category = c.category_id
+                 JOIN images i ON b.book_id = i.item_id
+                 JOIN user s ON b.book_seller = s.user_id
+        WHERE b.book_id=#{bookId}
+    </select>
+
+    <resultMap id="bookList" type="com.example.bookshop.vo.BookVo">
+        <id column="bid" property="bookId" javaType="Integer"></id>
+        <result column="book_name" property="bookName" javaType="String"></result>
+        <result column="book_isbn" property="bookIsbn" javaType="String"></result>
+        <result column="book_category" property="bookCategory" javaType="Integer"></result>
+        <result column="book_price" property="bookPrice" javaType="String"></result>
+        <result column="book_outline" property="bookOutline" javaType="String"></result>
+        <result column="book_release" property="bookRelease" javaType="Integer"></result>
+        <result column="img_url" property="bookImg" javaType="String"></result>
+        <association property="category" javaType="com.example.bookshop.bean.Category">
+            <id column="cid" property="categoryId" javaType="Integer"></id>
+            <result column="category_name" property="categoryName" javaType="String"></result>
+        </association>
+    </resultMap>
+
+    <select id="getAllBook" resultMap="bookList">
+        SELECT b.book_id bid,
+               b.book_name,
+               b.book_isbn,
+               b.book_category,
+               b.book_price,
+               b.book_outline,
+               b.book_release,
+               i.img_url,
+               c.category_id cid,
+               c.category_name
+        FROM book b
+                JOIN category c ON b.book_category = c.category_id
+                JOIN images i ON b.book_id = i.item_id
+        <where>
+            <choose>
+                <when test="categoryId != 0">
+                    c.category_id = #{categoryId} AND i.img_isbig=1 AND b.book_release=1
+                </when>
+                <when test="bookName != null">
+                    b.book_name like "%"#{bookName}"%" AND i.img_isbig=1 AND b.book_release=1
+                </when>
+                <otherwise>
+                    i.img_isbig=1 AND b.book_release=1
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="getCategoryList" resultType="com.example.bookshop.bean.Category">
+        select category_id,category_name from category;
+    </select>
+
+    <insert id="addBookImg" parameterType="com.example.bookshop.bean.BookImg" useGeneratedKeys="true" keyProperty="imgId" keyColumn="img_id">
+        INSERT INTO images (item_id,img_isbig,img_url) VALUES (#{itemId},#{imgIsbig},#{imgUrl})
+    </insert>
+
+    <insert id="addBook" parameterType="com.example.bookshop.bean.Book" useGeneratedKeys="true" keyProperty="bookId" keyColumn="book_id">
+        INSERT INTO book (book_name,book_isbn,book_category,book_price,book_outline,book_release,book_seller)
+        VALUES (#{bookName},#{bookIsbn},#{bookCategory},#{bookPrice},#{bookOutline},#{bookRelease},#{bookSeller})
+    </insert>
+    
+    <update id="changeBook" parameterType="com.example.bookshop.bean.Book">
+        UPDATE book
+        <set>
+            <if test="bookName != null and bookName != ''">
+                book_name = #{bookName},
+            </if>
+            <if test="bookIsbn != null and bookIsbn != ''">
+                book_isbn = #{bookIsbn},
+            </if>
+            <if test="bookPrice != null and bookPrice != ''">
+                book_price = #{bookPrice},
+            </if>
+            <if test="bookOutline != null and bookOutline != ''">
+                book_outline = #{bookOutline},
+            </if>
+            <if test="bookOutline != null">
+                book_release = #{bookRelease},
+            </if>
+        </set>
+        WHERE book_id = #{bookId}
+    </update>
+    
+    <select id="findBookById" resultType="com.example.bookshop.bean.Book">
+        select * from book where book_id = #{bookId}
+    </select>
+
+</mapper>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.bookshop.dao.DealDao">
+    <!--新增订单记录（加入购物车）-->
+    <insert id="addOrder" parameterType="com.example.bookshop.bean.Order">
+        INSERT INTO orderlist (order_id, book_id, seller_id, buyer_id) VALUES (#{orderId}, #{bookId}, #{sellerId}, #{buyerId});
+    </insert>
+    <!--查询该订单是否已生成（已加入购物车）-->
+    <select id="checkIsOrder" resultType="com.example.bookshop.bean.Order">
+        select order_id,
+               book_id,
+               seller_id,
+               buyer_id
+        FROM orderlist
+        WHERE book_id=#{bookId} AND buyer_id=#{buyerId}
+    </select>
+
+    <resultMap id="OrderDtlList" type="com.example.bookshop.vo.OrderDetailVo">
+        <id column="oid" property="orderId" javaType="String"></id>
+        <result column="book_id" property="bookId" javaType="Integer"></result>
+        <result column="seller_id" property="sellerId" javaType="Integer"></result>
+        <result column="buyer_id" property="buyerId" javaType="Integer"></result>
+        <association property="seller" javaType="com.example.bookshop.bean.Seller">
+            <id column="sid" property="sellerId" javaType="Integer"></id>
+            <result column="user_name" property="sellerName" javaType="String"></result>
+            <result column="user_email" property="sellerEmail" javaType="String"></result>
+            <result column="user_phone" property="sellerPhone" javaType="String"></result>
+        </association>
+        <association property="bookVo" javaType="com.example.bookshop.vo.BookVo">
+            <id column="bid" property="bookId" javaType="Integer"></id>
+            <result column="book_name" property="bookName" javaType="String"></result>
+            <result column="book_isbn" property="bookIsbn" javaType="String"></result>
+            <result column="book_category" property="bookCategory" javaType="Integer"></result>
+            <result column="book_price" property="bookPrice" javaType="String"></result>
+            <result column="book_outline" property="bookOutline" javaType="String"></result>
+            <result column="book_release" property="bookRelease" javaType="Integer"></result>
+            <result column="img_url" property="bookImg" javaType="String"></result>
+            <association property="category" javaType="com.example.bookshop.bean.Category">
+                <id column="cid" property="categoryId" javaType="Integer"></id>
+                <result column="category_name" property="categoryName" javaType="String"></result>
+            </association>
+        </association>
+    </resultMap>
+    <!--查找订单详情-->
+    <select id="getOrderDtlList" resultMap="OrderDtlList">
+        SELECT o.order_id oid,
+               o.book_id,
+               o.seller_id,
+               o.buyer_id,
+               s.user_id sid,
+               s.user_name,
+               s.user_email,
+               s.user_phone,
+               b.book_id bid,
+               b.book_name,
+               b.book_isbn,
+               b.book_category,
+               b.book_price,
+               b.book_outline,
+               b.book_release,
+               i.img_url,
+               c.category_id cid,
+               c.category_name
+        FROM orderlist o
+                 JOIN book b ON o.book_id = b.book_id
+                 JOIN category c ON b.book_category = c.category_id
+                 JOIN images i ON b.book_id = i.item_id AND i.img_isbig=1
+                 JOIN USER s ON o.seller_id = s.user_id
+        WHERE o.buyer_id=#{buyerId}
+    </select>
+
+    <!-- 删除一条订单数据 -->
+    <delete id="deleteOrderById">
+        DELETE FROM orderlist
+        WHERE order_id = #{orderId}
+    </delete>
+    
+    <!--交易成功后新增一条历史订单数据-->
+    <insert id="insertOrderHx" parameterType="com.example.bookshop.bean.OrderHistory">
+        INSERT INTO orderhistory (order_id, pay_id, buyer_id, seller_id, book_id, total_amount, goods_state, create_time ) VALUES (#{orderId}, #{payId}, #{buyerId}, #{sellerId}, #{bookId}, #{totalAmount}, #{goodsState}, #{createTime});
+    </insert>
+
+    <!--根据orderId查找该条订单记录-->
+    <select id="getOrderById" resultType="com.example.bookshop.bean.Order">
+        select order_id,
+               book_id,
+               seller_id,
+               buyer_id
+        FROM orderlist
+        WHERE order_id=#{orderId}
+    </select>
+
+    <resultMap id="OrderHxList" type="com.example.bookshop.vo.OrderHistoryVo">
+        <id column="oxid" property="orderhxId" javaType="Integer"></id>
+        <result column="order_id" property="orderId" javaType="String"></result>
+        <result column="pay_id" property="payId" javaType="String"></result>
+        <result column="buyer_id" property="buyerId" javaType="Integer"></result>
+        <result column="seller_id" property="sellerId" javaType="Integer"></result>
+        <result column="book_id" property="bookId" javaType="Integer"></result>
+        <result column="total_amount" property="totalAmount" javaType="String"></result>
+        <result column="goods_state" property="goodsState" javaType="Integer"></result>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"></result>
+        <association property="sellerOrBuyer" javaType="com.example.bookshop.bean.User">
+            <id column="uid" property="userId" javaType="Integer"></id>
+            <result column="user_name" property="userName" javaType="String"></result>
+            <result column="user_email" property="userEmail" javaType="String"></result>
+            <result column="user_phone" property="userPhone" javaType="String"></result>
+        </association>
+        <association property="book" javaType="com.example.bookshop.bean.Book">
+            <id column="bid" property="bookId" javaType="Integer"></id>
+            <result column="book_name" property="bookName" javaType="String"></result>
+            <result column="book_isbn" property="bookIsbn" javaType="String"></result>
+            <result column="book_outline" property="bookOutline" javaType="String"></result>
+        </association>
+    </resultMap>
+
+    <select id="getOrderBuyHxList" resultMap="OrderHxList">
+        SELECT o.orderhx_id oxid,
+               o.order_id,
+               o.pay_id,
+               o.buyer_id,
+               o.seller_id,
+               o.book_id,
+               o.total_amount,
+               o.goods_state,
+               o.create_time,
+               u.user_id uid,
+               u.user_name,
+               u.user_email,
+               u.user_phone,
+               b.book_id bid,
+               b.book_name,
+               b.book_isbn,
+               b.book_outline
+        FROM orderhistory o
+                 JOIN book b ON o.book_id = b.book_id
+                 JOIN user u ON o.seller_id = u.user_id
+        WHERE o.buyer_id=#{buyerId}
+    </select>
+
+    <select id="getOrderSellHxList" resultMap="OrderHxList">
+        SELECT o.orderhx_id oxid,
+               o.order_id,
+               o.pay_id,
+               o.buyer_id,
+               o.seller_id,
+               o.book_id,
+               o.total_amount,
+               o.goods_state,
+               o.create_time,
+               u.user_id uid,
+               u.user_name,
+               u.user_email,
+               u.user_phone,
+               b.book_id bid,
+               b.book_name,
+               b.book_isbn,
+               b.book_outline
+        FROM orderhistory o
+                 JOIN book b ON o.book_id = b.book_id
+                 JOIN user u ON o.buyer_id = u.user_id
+        WHERE o.seller_id=#{sellerId}
+    </select>
+
+    <!--当图书被出售时下架该图书-->
+    <update id="DownBook" parameterType="java.lang.Integer">
+        UPDATE book SET book_release=3 WHERE book_id=#{bookId}
+    </update>
+
+    <!--修改订单状态 已发货/已收货-->
+    <update id="setGoodsState" parameterType="java.lang.Integer">
+        UPDATE orderhistory SET goods_state=#{goodsState} WHERE orderhx_id=#{orderhxId}
+    </update>
+
+    <!--拿到用户钱包内的余额-->
+    <select id="findUserWallet" resultType="com.example.bookshop.bean.User">
+        select user_id,user_wallet from user where user_id=#{userId}
+    </select>
+
+    <!--增加用户钱包内的余额-->
+    <update id="increaseWallet" parameterType="com.example.bookshop.bean.User">
+        UPDATE user SET user_wallet=#{userWallet} WHERE user_id=#{userId}
+    </update>
+
+</mapper>

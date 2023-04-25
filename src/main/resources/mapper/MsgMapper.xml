@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.bookshop.dao.MsgDao">
+    <!--插入消息-->
+    <insert id="insertMsg" parameterType="com.example.bookshop.bean.Msg">
+        INSERT INTO historymsg (msg_from, msg_to, msg_text, msg_date) VALUES (#{msgFrom}, #{msgTo}, #{msgText}, #{msgDate});
+    </insert>
+    <!--查找消息-->
+    <select id="getHistoryMsg" resultType="com.example.bookshop.bean.Msg">
+        select * from historymsg where msg_from=#{msgFrom} AND msg_to=#{msgTo}
+    </select>
+
+    <!--新建会话列表-->
+    <insert id="insertChatLink" parameterType="com.example.bookshop.bean.ChatLink">
+        INSERT INTO chatlink (from_user, to_user) VALUES (#{fromUser}, #{toUser});
+    </insert>
+
+    <!--查找当前用户所有会话列表-->
+    <select id="getChatLinkList" resultType="com.example.bookshop.bean.ChatLink">
+        select * from chatlink where to_user=#{user} or from_user=#{user}
+    </select>
+
+    <!--删除当前用户与另一位用户的聊天记录-->
+    <!-- public void deleteMoreByList(List<Integer> ids);  -->
+    <delete id="deleteMsgByList">
+        delete from historymsg where msg_id in
+        <foreach collection="list" item="id"  separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteLinkByList">
+        delete from chatlink where link_id in
+        <foreach collection="list" item="id"  separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--查找当前用户与另一位用户会话是否已存在-->
+    <select id="IsChatLink" resultType="com.example.bookshop.bean.ChatLink">
+        select * from chatlink where from_user=#{fromUser} AND to_user=#{toUser}
+    </select>
+    
+    <!--查找当前用户与另一位用户的会话ID-->
+    <select id="getLinkIdList" resultType="Integer">
+        SELECT link_id FROM chatlink WHERE from_user=#{fromUser} AND to_user=#{toUser} OR from_user=#{toUser} AND to_user=#{fromUser}
+    </select>
+</mapper>

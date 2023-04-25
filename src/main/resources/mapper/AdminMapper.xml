@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.bookshop.dao.AdminDao">
+    <!--图书详情返回Map-->
+    <resultMap id="bookDtl" type="com.example.bookshop.vo.BookDetailVo">
+        <id column="bid" property="bookId" javaType="Integer"></id>
+        <result column="book_name" property="bookName" javaType="String"></result>
+        <result column="book_isbn" property="bookIsbn" javaType="String"></result>
+        <result column="book_category" property="bookCategory" javaType="Integer"></result>
+        <result column="book_price" property="bookPrice" javaType="String"></result>
+        <result column="book_outline" property="bookOutline" javaType="String"></result>
+        <result column="book_release" property="bookRelease" javaType="Integer"></result>
+        <association property="category" javaType="com.example.bookshop.bean.Category">
+            <id column="cid" property="categoryId" javaType="Integer"></id>
+            <result column="category_name" property="categoryName" javaType="String"></result>
+        </association>
+        <association property="seller" javaType="com.example.bookshop.bean.Seller">
+            <id column="sid" property="sellerId" javaType="Integer"></id>
+            <result column="user_name" property="sellerName" javaType="String"></result>
+            <result column="user_email" property="sellerEmail" javaType="String"></result>
+            <result column="user_phone" property="sellerPhone" javaType="String"></result>
+        </association>
+        <collection property="bookImgList" ofType="com.example.bookshop.bean.BookImg">
+            <id column="iid" property="imgId" javaType="Integer"></id>
+            <result column="item_id" property="itemId" javaType="Integer"></result>
+            <result column="img_isbig" property="imgIsbig" javaType="Integer"></result>
+            <result column="img_url" property="imgUrl" javaType="String"></result>
+        </collection>
+    </resultMap>
+
+    <select id="getBookList" resultMap="bookDtl">
+        SELECT b.book_id bid,
+               b.book_name,
+               b.book_isbn,
+               b.book_category,
+               b.book_price,
+               b.book_outline,
+               b.book_release,
+               i.img_id iid,
+               i.item_id,
+               i.img_isbig,
+               i.img_url,
+               c.category_id cid,
+               c.category_name,
+               s.user_id sid,
+               s.user_name,
+               s.user_email,
+               s.user_phone
+        FROM book b
+                 JOIN category c ON b.book_category = c.category_id
+                 JOIN images i ON b.book_id = i.item_id
+                 JOIN user s ON b.book_seller = s.user_id
+    </select>
+    <!--修改图书审核状态-->
+    <update id="updateRelease" parameterType="com.example.bookshop.bean.Book">
+        UPDATE book SET book_release=#{bookRelease} WHERE book_id=#{bookId}
+    </update>
+
+    <select id="getUserList" resultType="com.example.bookshop.bean.User">
+        SELECT user_id,user_name,user_email,user_phone,user_role,user_address FROM USER
+    </select>
+
+    <!--修改用户权限-->
+    <update id="setUserRole" parameterType="com.example.bookshop.bean.Book">
+        UPDATE user SET user_role=#{userRole} WHERE user_id=#{userId}
+    </update>
+
+    <!--订单买卖双方详情-->
+    <resultMap id="OrderBuyAndSell" type="com.example.bookshop.vo.OrderListVo">
+        <id column="oxid" property="orderhxId" javaType="Integer"></id>
+        <result column="order_id" property="orderId" javaType="String"></result>
+        <result column="pay_id" property="payId" javaType="String"></result>
+        <result column="buyer_id" property="buyerId" javaType="Integer"></result>
+        <result column="seller_id" property="sellerId" javaType="Integer"></result>
+        <result column="book_id" property="bookId" javaType="Integer"></result>
+        <result column="total_amount" property="totalAmount" javaType="String"></result>
+        <result column="goods_state" property="goodsState" javaType="Integer"></result>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"></result>
+        <association property="seller" javaType="com.example.bookshop.bean.User">
+            <id column="sid" property="userId" javaType="Integer"></id>
+            <result column="sname" property="userName" javaType="String"></result>
+            <result column="semail" property="userEmail" javaType="String"></result>
+            <result column="sphone" property="userPhone" javaType="String"></result>
+        </association>
+        <association property="buyer" javaType="com.example.bookshop.bean.User">
+            <id column="bid" property="userId" javaType="Integer"></id>
+            <result column="bname" property="userName" javaType="String"></result>
+            <result column="bemail" property="userEmail" javaType="String"></result>
+            <result column="bphone" property="userPhone" javaType="String"></result>
+        </association>
+        <association property="book" javaType="com.example.bookshop.bean.Book">
+            <id column="gid" property="bookId" javaType="Integer"></id>
+            <result column="book_name" property="bookName" javaType="String"></result>
+            <result column="book_isbn" property="bookIsbn" javaType="String"></result>
+            <result column="book_outline" property="bookOutline" javaType="String"></result>
+        </association>
+    </resultMap>
+
+    <select id="getOrderList" resultMap="OrderBuyAndSell">
+        SELECT o.orderhx_id oxid,
+                o.order_id,
+                o.pay_id,
+                o.buyer_id,
+                o.seller_id,
+                o.book_id,
+                o.total_amount,
+                o.goods_state,
+                o.create_time,
+                s.user_id sid,
+                s.user_name sname,
+                s.user_email semail,
+                s.user_phone sphone,
+                b.user_id bid,
+                b.user_name bname,
+                b.user_email bemail,
+                b.user_phone bphone,
+                g.book_id gid,
+                g.book_name,
+                g.book_isbn,
+                g.book_outline
+        FROM orderhistory o
+        JOIN book g ON o.book_id = g.book_id
+        JOIN user s ON o.seller_id = s.user_id
+        JOIN user b ON o.buyer_id = b.user_id
+    </select>
+
+
+
+
+
+
+</mapper>

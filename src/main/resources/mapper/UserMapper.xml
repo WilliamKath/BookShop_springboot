@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.bookshop.dao.UserDao">
+    <select id="getUserByMessage" resultType="com.example.bookshop.bean.User">
+        SELECT * FROM user WHERE user_name=#{userName} AND user_password=#{userPassword}
+    </select>
+
+    <select id="findAll" resultType="com.example.bookshop.bean.User">
+        SELECT * FROM user
+    </select>
+
+    <insert id="UserSignUp">
+        INSERT INTO USER (user_name,user_password,user_email,user_phone,user_role) VALUES (#{userName},#{userPassword},#{userEmail},#{userPhone},#{userRole})
+    </insert>
+
+    <select id="getUserByUsername" resultType="com.example.bookshop.bean.User">
+        SELECT * FROM user WHERE user_name=#{userName}
+    </select>
+
+    <select id="getUserById" resultType="com.example.bookshop.bean.User">
+        SELECT user_id,user_name,user_email,user_phone,user_role,user_address,user_wallet FROM USER WHERE user_id=#{userId}
+    </select>
+
+    <update id="updateUser" parameterType="com.example.bookshop.bean.User">
+        UPDATE user
+        <set>
+            <if test="userName != null and userName != ''">
+                user_name = #{userName},
+            </if>
+            <if test="userEmail != null and userEmail != ''">
+                user_email = #{userEmail},
+            </if>
+            <if test="userPhone != null and userPhone != ''">
+                user_phone = #{userPhone},
+            </if>
+            <if test="userAddress != null and userAddress != ''">
+                user_address = #{userAddress},
+            </if>
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+
+
+</mapper>
